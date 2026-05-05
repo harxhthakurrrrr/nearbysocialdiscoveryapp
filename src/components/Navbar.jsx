@@ -91,10 +91,20 @@ const Navbar = () => {
       </nav>
 
       {/* Top Header (Status/Search) */}
-      <header className="fixed top-0 left-0 right-0 h-16 z-40 md:pl-20 glass border-b border-glass-border flex items-center justify-between px-6">
-        <h1 className="text-xl font-black tracking-tighter bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent italic">
-          NEARBY.SOCIAL
-        </h1>
+      <header className="fixed top-0 left-0 right-0 h-16 z-40 md:pl-20 glass border-b border-white/10 flex items-center justify-between px-6 shadow-none">
+        <div className="flex items-center gap-3 group cursor-pointer">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full group-hover:bg-primary/30 transition-all"></div>
+            <img 
+              src="/icons.svg" 
+              alt="Logo" 
+              className="w-10 h-10 relative z-10 animate-pulse-glow"
+            />
+          </div>
+          <h1 className="text-2xl font-black tracking-tighter text-primary italic shadow-none group-hover:scale-105 transition-transform origin-left">
+            NEARBY.SOCIAL
+          </h1>
+        </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-glass-border">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>

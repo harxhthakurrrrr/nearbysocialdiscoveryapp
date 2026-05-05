@@ -12,15 +12,17 @@ const Register = () => {
           animate={{ opacity: 1, y: 0 }}
           className="glass-card p-8 rounded-[2.5rem] border border-glass-border shadow-2xl"
         >
-          <div className="flex flex-col items-center mb-8">
-            <div className="relative group cursor-pointer">
-              <div className="w-20 h-20 bg-primary/20 rounded-[2rem] border-2 border-dashed border-primary flex items-center justify-center mb-2 overflow-hidden transition-all group-hover:bg-primary/30">
-                <Camera size={32} className="text-primary" />
-              </div>
-              <p className="text-[10px] text-primary font-bold uppercase tracking-widest text-center">Upload Photo</p>
+          <div className="flex flex-col items-center mb-8 shadow-none">
+            <div className="relative group mb-4">
+              <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full group-hover:bg-primary/30 transition-all"></div>
+              <img 
+                src="/icons.svg" 
+                className="w-16 h-16 relative z-10 animate-pulse-glow"
+                alt="Logo"
+              />
             </div>
-            <h2 className="text-3xl font-bold mt-4">Create Account</h2>
-            <p className="text-gray-400 text-sm mt-1">Join the community today</p>
+            <h2 className="text-3xl font-bold mt-4 shadow-none">Create Account</h2>
+            <p className="text-gray-400 text-sm mt-1 shadow-none">Join the community today</p>
           </div>
 
           <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>

@@ -23,7 +23,7 @@ function App() {
 
   return (
     <Router>
-      <div className="app-container min-h-screen bg-bg-dark text-white selection:bg-primary selection:text-white">
+      
         <Navbar />
         <main className="pt-16 pb-20 md:pb-0 md:pl-20">
           <Routes>
@@ -37,7 +37,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
-      </div>
+   
     </Router>
   );
 }

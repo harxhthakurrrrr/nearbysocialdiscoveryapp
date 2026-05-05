@@ -39,15 +39,16 @@ body {
   box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
 }
 
-/* Leaflet Map Overrides - Aesthetic Cyberpunk Dark */
+/* Leaflet Map - Premium Aesthetic Mode */
 .leaflet-container {
   width: 100%;
   height: 100%;
-  background: #020617 !important;
+  background: #f1f5f9 !important;
 }
 
 .leaflet-tile-pane {
-  filter: invert(100%) hue-rotate(170deg) brightness(0.8) contrast(1.2) saturate(0.5);
+  /* Soft, clean, and saturated look */
+  filter: saturate(1.4) contrast(1.1) brightness(1.02);
 }
 
 /* Custom Animations */

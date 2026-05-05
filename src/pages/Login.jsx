@@ -12,12 +12,17 @@ const Login = () => {
           animate={{ opacity: 1, y: 0 }}
           className="glass-card p-8 rounded-[2.5rem] border border-glass-border shadow-2xl"
         >
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-4 shadow-xl shadow-primary/20 animate-pulse-glow">
-              <MapPin size={32} className="text-white" />
+          <div className="flex flex-col items-center mb-8 shadow-none">
+            <div className="relative group mb-4">
+              <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full group-hover:bg-primary/30 transition-all"></div>
+              <img 
+                src="/icons.svg" 
+                className="w-20 h-20 relative z-10 animate-pulse-glow"
+                alt="Logo"
+              />
             </div>
-            <h2 className="text-3xl font-bold">Welcome Back</h2>
-            <p className="text-gray-400 text-sm mt-1">Discover people around you</p>
+            <h2 className="text-3xl font-bold shadow-none">Welcome Back</h2>
+            <p className="text-gray-400 text-sm mt-1 shadow-none">Discover people around you</p>
           </div>
 
           <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
