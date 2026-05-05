@@ -1,0 +1,54 @@
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(170, 59, 255, 0.3);
+}
+
+/* Map Popup Overrides */
+.leaflet-popup-content-wrapper {
+  background: rgba(10, 10, 12, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white !important;
+  border-radius: 12px !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(10, 10, 12, 0.8) !important;
+}
+
+/* Tinder Card Container Fix */
+.swipe {
+  position: absolute;
+}
+
+/* Marker Styles */
+.custom-marker {
+  background: transparent;
+  border: none;
+}
+
+/* Animations */
+.hover-lift {
+  transition: transform 0.2s ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.active-scale:active {
+  transform: scale(0.95);
+}
