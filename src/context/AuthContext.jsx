@@ -55,10 +55,23 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
+  // Update Profile
+  const updateProfile = async (profileData) => {
+    try {
+      const res = await api.put('/auth/profile', profileData);
+      setUser(res.data.user);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
+  };
+
   // Logout
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('ghostMode'); // Clear ghost mode on logout
     setToken(null);
     setUser(null);
     delete api.defaults.headers.common['Authorization'];
@@ -70,12 +83,12 @@ export const AuthProvider = ({ children }) => {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       fetchCurrentUser();
     } else {
-      setLoading(false);
+      setLoading(false);  
     }
   }, [token]);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

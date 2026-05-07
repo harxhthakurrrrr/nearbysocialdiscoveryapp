@@ -1,12 +1,32 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, MapPin, Shield, MessageCircle, Heart, Award, Zap } from 'lucide-react';
-import { gsap } from 'gsap';
+import { X, MapPin, Shield, MessageCircle, Heart, Award, Zap, Ban } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 
 const ProfileModal = ({ user, onClose }) => {
+  const navigate = useNavigate();
+
   const handleRequestAccess = () => {
-    // Logic for requesting exact location
-    alert(`Request sent to ${user.name}!`);
+    alert(`Location request sent to ${user.name}!`);
+  };
+
+  const handleBlockUser = async () => {
+    if (window.confirm(`Are you sure you want to block ${user.name}? You will no longer see them.`)) {
+      try {
+        await api.post(`/social/block/${user._id}`);
+        alert(`${user.name} has been blocked`);
+        onClose();
+      } catch (err) {
+        console.error('Block user error:', err);
+        alert('Failed to block user');
+      }
+    }
+  };
+
+  const handleStartChat = () => {
+    onClose();
+    navigate(`/chat?user=${user._id}`);
   };
 
   return (
@@ -31,10 +51,16 @@ const ProfileModal = ({ user, onClose }) => {
           <X size={20} />
         </button>
 
+<button 
+  onClick={handleBlockUser}
+  className="p-4 glass hover:bg-red-500/20 hover:text-red-500 text-white rounded-2xl"
+>
+  <Ban size={18} />
+</button>
         {/* Profile Header */}
         <div className="relative h-48">
           <img 
-            src={`https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=500&q=80`} 
+            src={user.cover_img || `https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=500&q=80`} 
             className="w-full h-full object-cover"
             alt="Cover"
           />
@@ -42,16 +68,16 @@ const ProfileModal = ({ user, onClose }) => {
           <div className="absolute -bottom-12 left-6 flex items-end gap-4">
             <div className="relative">
               <img 
-                src={user.img} 
+                src={user.img || user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} 
                 className="w-24 h-24 rounded-3xl border-4 border-bg-dark object-cover"
                 alt={user.name}
               />
               <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-4 border-bg-dark rounded-full"></div>
             </div>
             <div className="mb-2">
-              <h2 className="text-2xl font-bold text-white">{user.name}, 24</h2>
+              <h2 className="text-2xl font-bold text-white">{user.name}, {user.age || 24}</h2>
               <p className="text-primary text-sm flex items-center gap-1">
-                <Zap size={14} fill="currentColor" /> {user.xp} XP • Explorer
+                <Zap size={14} fill="currentColor" /> {user.xp || 1200} XP • Level {user.level || 2}
               </p>
             </div>
           </div>
@@ -62,7 +88,7 @@ const ProfileModal = ({ user, onClose }) => {
           <div className="flex gap-4 mb-6">
             <div className="flex-1 glass rounded-2xl p-3 text-center border border-white/5">
               <p className="text-xs text-gray-400 mb-1">Distance</p>
-              <p className="font-bold">{user.distance}</p>
+              <p className="font-bold">{user.distance || '2.5km'}</p>
             </div>
             <div className="flex-1 glass rounded-2xl p-3 text-center border border-white/5">
               <p className="text-xs text-gray-400 mb-1">Status</p>
@@ -70,18 +96,18 @@ const ProfileModal = ({ user, onClose }) => {
             </div>
             <div className="flex-1 glass rounded-2xl p-3 text-center border border-white/5">
               <p className="text-xs text-gray-400 mb-1">Matches</p>
-              <p className="font-bold text-secondary">12</p>
+              <p className="font-bold text-secondary">{user.matches || 8}</p>
             </div>
           </div>
 
           <div className="space-y-4 mb-8">
             <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">About</h3>
             <p className="text-gray-200 text-sm leading-relaxed">
-              Hey! I love exploring new places in Delhi. Always down for coffee or a quick walk in the park. ☕️🌳
+              {user.bio || "Hey! I love exploring new places. Always down for coffee or a quick walk in the park. ☕️🌳"}
             </p>
             
             <div className="flex flex-wrap gap-2">
-              {['Coffee', 'Hiking', 'Tech', 'Music'].map(tag => (
+              {(user.interests || ['Coffee', 'Hiking', 'Tech', 'Music']).map(tag => (
                 <span key={tag} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-300">
                   {tag}
                 </span>
@@ -111,11 +137,18 @@ const ProfileModal = ({ user, onClose }) => {
                 Request Access
               </button>
             )}
-            <button className="flex-1 glass hover:bg-white/10 text-white font-bold py-3 px-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 border border-white/10">
+            <button 
+              onClick={handleStartChat}
+              className="flex-1 glass hover:bg-white/10 text-white font-bold py-3 px-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 border border-white/10"
+            >
               <MessageCircle size={18} />
+              Chat
             </button>
-            <button className="p-4 glass hover:bg-secondary/10 hover:text-secondary text-white rounded-2xl transition-all active:scale-95 border border-white/10">
-              <Heart size={18} />
+            <button 
+              onClick={handleBlockUser}
+              className="p-4 glass hover:bg-red-500/20 hover:text-red-500 text-white rounded-2xl transition-all active:scale-95 border border-white/10"
+            >
+              <Ban size={18} />
             </button>
           </div>
         </div>

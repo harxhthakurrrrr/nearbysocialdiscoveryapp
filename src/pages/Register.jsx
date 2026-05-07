@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { User, Mail, Lock, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, Mail, Lock, ArrowRight, Loader2, AlertCircle, CheckCircle, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
@@ -14,12 +14,12 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear errors when typing
     if (error) setError('');
     if (fieldErrors[name]) {
       setFieldErrors(prev => ({ ...prev, [name]: '' }));
@@ -73,22 +73,25 @@ const Register = () => {
 
       console.log('Registration success:', res.data);
       
-      // Show success and redirect
-      alert('Registration successful! Please login.');
-      navigate('/login');
+      // Show success modal instead of alert
+      setShowSuccessModal(true);
+      
+      // Auto redirect after 2 seconds
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        navigate('/login');
+      }, 2000);
       
     } catch (err) {
       console.error('Registration error:', err);
       
-      // 🔥 IMPORTANT: Handle different error formats from backend
       const errorMessage = 
-        err.response?.data?.error ||      // Backend sends "error"
-        err.response?.data?.message ||     // Backend sends "message"
-        err.response?.data?.detail ||      // Backend sends "detail"
-        err.message ||                      // Network error
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        err.message ||
         'Registration failed. Please try again.';
       
-      // 🔥 Specific error messages based on content
       if (errorMessage.toLowerCase().includes('username')) {
         setFieldErrors(prev => ({ ...prev, username: errorMessage }));
         setError('');
@@ -109,6 +112,52 @@ const Register = () => {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6">
+      {/* Success Modal */}
+      <AnimatePresence>
+        {showSuccessModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowSuccessModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="glass-card p-8 rounded-3xl max-w-md w-full mx-4 text-center border border-green-500/30"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative">
+                <button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="absolute -top-4 -right-4 p-1 glass rounded-full hover:bg-white/10 transition-colors"
+                >
+                  <X size={18} />
+                </button>
+                
+                <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/20">
+                  <CheckCircle size={40} className="text-white" />
+                </div>
+                
+                <h3 className="text-2xl font-bold text-white mb-2">🎉 Registration Successful!</h3>
+                <p className="text-gray-300 mb-2">
+                  Welcome <span className="text-primary font-bold">{formData.full_name}</span>!
+                </p>
+                <p className="text-sm text-gray-400 mb-4">
+                  Your account has been created successfully.
+                </p>
+                <div className="flex items-center justify-center gap-2 text-primary text-sm">
+                  <Loader2 size={14} className="animate-spin" />
+                  Redirecting to login page...
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="w-full max-w-md">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

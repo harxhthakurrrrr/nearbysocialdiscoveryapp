@@ -1,8 +1,9 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Map, Heart, MessageSquare, User, Bell, Compass, LogIn, UserPlus, LogOut } from 'lucide-react';
+import { Map, Heart, MessageSquare, User, Compass, LogIn, UserPlus, LogOut, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from './NotificationBell';
 
 const Navbar = () => {
   const { user, token, logout } = useAuth();
@@ -13,20 +14,20 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // Nav items for logged in users
   const navItems = [
     { icon: <Map size={24} />, path: '/', label: 'Map' },
     { icon: <Compass size={24} />, path: '/discover', label: 'Discover' },
     { icon: <MessageSquare size={24} />, path: '/chat', label: 'Chat' },
     { icon: <Heart size={24} />, path: '/matches', label: 'Matches' },
+    { icon: <Trophy size={24} />, path: '/leaderboard', label: 'Leaderboard' },
     { icon: <User size={24} />, path: '/profile', label: 'Profile' },
   ];
 
   return (
     <>
-      {/* Mobile Bottom Nav - Only for logged in users */}
+      {/* Mobile Bottom Nav */}
       {token && (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-glass-border px-6 py-3 flex justify-between items-center">
+        <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-glass-border px-4 py-2 flex justify-between items-center">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
@@ -53,7 +54,7 @@ const Navbar = () => {
         </nav>
       )}
 
-      {/* Desktop Sidebar Nav */}
+      {/* Desktop Sidebar */}
       <nav className="fixed left-0 top-0 bottom-0 w-20 z-50 hidden md:flex flex-col items-center py-8 glass border-r border-glass-border">
         <div className="mb-12">
           <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center animate-pulse-glow">
@@ -63,8 +64,7 @@ const Navbar = () => {
         
         {token ? (
           <>
-            {/* Logged In - Show Navigation Icons */}
-            <div className="flex-1 flex flex-col gap-8">
+            <div className="flex-1 flex flex-col gap-6">
               {navItems.map((item) => (
                 <NavLink
                   key={item.path}
@@ -97,8 +97,12 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Logout Button */}
-            <div className="mt-auto mb-4">
+            {/* ✅ NOTIFICATION BELL - ADD THIS */}
+            <div className="mt-auto">
+              <NotificationBell />
+            </div>
+
+            <div className="mb-4">
               <button 
                 onClick={handleLogout}
                 className="relative group p-3 rounded-xl transition-all duration-300 text-gray-400 hover:bg-red-500/20 hover:text-red-500 w-full flex justify-center"
@@ -111,115 +115,73 @@ const Navbar = () => {
             </div>
           </>
         ) : (
-          <>
-            {/* Not Logged In - Show Login/Signup Buttons */}
-            <div className="flex-1 flex flex-col gap-8 justify-center">
-              <button 
-                onClick={() => navigate('/login')}
-                className="relative group p-3 rounded-xl transition-all duration-300 text-gray-400 hover:bg-primary/20 hover:text-primary"
-              >
-                <LogIn size={24} />
-                <span className="absolute left-20 bg-primary text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Login
-                </span>
-              </button>
-              
-              <button 
-                onClick={() => navigate('/register')}
-                className="relative group p-3 rounded-xl transition-all duration-300 text-gray-400 hover:bg-green-500/20 hover:text-green-500"
-              >
-                <UserPlus size={24} />
-                <span className="absolute left-20 bg-green-500 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  Sign Up
-                </span>
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Notification Bell - Only for logged in */}
-        {token && (
-          <div className="mt-auto">
-            <button className="relative p-3 text-gray-400 hover:text-white transition-colors group">
-              <Bell size={24} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-bg-dark"></span>
+          <div className="flex-1 flex flex-col gap-8 justify-center">
+            <button 
+              onClick={() => navigate('/login')}
+              className="relative group p-3 rounded-xl transition-all duration-300 text-gray-400 hover:bg-primary/20 hover:text-primary"
+            >
+              <LogIn size={24} />
+              <span className="absolute left-20 bg-primary text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                Login
+              </span>
+            </button>
+            
+            <button 
+              onClick={() => navigate('/register')}
+              className="relative group p-3 rounded-xl transition-all duration-300 text-gray-400 hover:bg-green-500/20 hover:text-green-500"
+            >
+              <UserPlus size={24} />
+              <span className="absolute left-20 bg-green-500 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                Sign Up
+              </span>
             </button>
           </div>
         )}
       </nav>
 
-      {/* Mobile Top Header - With Auth Buttons */}
-      <header className="fixed top-0 left-0 right-0 h-16 z-40 md:pl-20 glass border-b border-white/10 flex items-center justify-between px-6 shadow-none">
-        <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate('/')}>
-          <div className="relative">
-            <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full group-hover:bg-primary/30 transition-all"></div>
-            <img 
-              src="/icons.svg" 
-              alt="Logo" 
-              className="w-10 h-10 relative z-10 animate-pulse-glow"
-            />
-          </div>
-          <h1 className="text-2xl font-black tracking-tighter text-primary italic shadow-none group-hover:scale-105 transition-transform origin-left">
-            NEARBY.SOCIAL
-          </h1>
+      {/* Mobile Top Header */}
+      <header className="fixed top-0 left-0 right-0 h-16 z-40 md:pl-20 glass border-b border-white/10 flex items-center justify-between px-4 shadow-none">
+        <div className="flex items-center gap-2 group cursor-pointer" onClick={() => navigate('/')}>
+          <img src="/icons.svg" alt="Logo" className="w-8 h-8" />
+          <h1 className="text-xl font-black text-primary">NEARBY</h1>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {!token ? (
-            // Show Login/Signup buttons on mobile header
             <div className="flex gap-2">
-              <button 
-                onClick={() => navigate('/login')}
-                className="px-4 py-2 bg-primary/20 text-primary rounded-xl text-sm font-bold hover:bg-primary/30 transition-all"
-              >
+              <button onClick={() => navigate('/login')} className="px-3 py-1.5 bg-primary/20 text-primary rounded-lg text-xs font-bold">
                 Login
               </button>
-              <button 
-                onClick={() => navigate('/register')}
-                className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-bold hover:bg-primary/90 transition-all"
-              >
+              <button onClick={() => navigate('/register')} className="px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-bold">
                 Sign Up
               </button>
             </div>
           ) : (
-            // Show user info when logged in
             <>
-              <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-glass-border">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-xs font-medium text-gray-300">Online</span>
+              {/* ✅ NOTIFICATION BELL - ADD THIS IN MOBILE HEADER ALSO */}
+              <NotificationBell />
+              <div className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-full">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-[10px] text-gray-300">Online</span>
               </div>
               <img 
                 src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'user'}`} 
                 alt="Profile" 
-                className="w-8 h-8 rounded-full border border-primary/50 cursor-pointer"
+                className="w-7 h-7 rounded-full border border-primary/50 cursor-pointer"
                 onClick={() => navigate('/profile')}
               />
-              <button 
-                onClick={handleLogout}
-                className="md:hidden p-2 text-gray-400 hover:text-red-500 transition-colors"
-              >
-                <LogOut size={20} />
-              </button>
             </>
           )}
         </div>
       </header>
 
-      {/* Mobile Bottom Auth Bar (when not logged in) */}
+      {/* Mobile Bottom Auth Bar */}
       {!token && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-glass-border px-6 py-3 flex justify-center gap-4">
-          <button 
-            onClick={() => navigate('/login')}
-            className="flex-1 py-3 bg-primary/20 text-primary rounded-xl font-bold flex items-center justify-center gap-2"
-          >
-            <LogIn size={18} />
+        <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-glass-border px-4 py-2 flex justify-center gap-3">
+          <button onClick={() => navigate('/login')} className="flex-1 py-2 bg-primary/20 text-primary rounded-lg text-sm font-bold">
             Login
           </button>
-          <button 
-            onClick={() => navigate('/register')}
-            className="flex-1 py-3 bg-primary text-white rounded-xl font-bold flex items-center justify-center gap-2"
-          >
-            <UserPlus size={18} />
+          <button onClick={() => navigate('/register')} className="flex-1 py-2 bg-primary text-white rounded-lg text-sm font-bold">
             Sign Up
           </button>
         </div>

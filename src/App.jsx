@@ -10,7 +10,9 @@ import Register from './pages/Register';
 import Discover from './pages/Discover';
 import Chat from './pages/Chat';
 import Profile from './pages/Profile';
+import Leaderboard from './pages/Leaderboard';
 import Matches from './pages/Matches';
+import Notifications from './pages/Notifications';
 import './App.css';
 
 function App() {
@@ -40,7 +42,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="preloader fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center">
+      <div className="preloader fixed inset-0 z-[9999] bg-bg-dark flex flex-col items-center justify-center">
         <div className="relative">
           <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full animate-pulse"></div>
           <img 
@@ -74,6 +76,8 @@ function App() {
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/matches" element={<Matches />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/notifications" element={<Notifications />} />
               </Route>
 
               {/* Fallback */}
