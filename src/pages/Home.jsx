@@ -17,14 +17,14 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom avatar marker
-const getAvatarIcon = (avatarUrl, username, isPulse = false) => {
+// Custom avatar marker with pulse animation
+const getAvatarIcon = (avatarUrl, username, hasPulse = false) => {
   return L.divIcon({
     html: `
-      <div class="custom-avatar-marker" style="position: relative;">
+      <div class="custom-avatar-marker" style="position: relative; cursor: pointer;">
         <img src="${avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`}" 
-             style="width: 44px; height: 44px; border-radius: 50%; border: 3px solid ${isPulse ? '#ff0080' : '#7928ca'}; box-shadow: 0 2px 10px rgba(0,0,0,0.15); background: white; object-fit: cover;" />
-        <div class="${isPulse ? 'pulse-ring-active' : 'pulse-ring'}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: ${isPulse ? 'rgba(255, 0, 128, 0.4)' : 'rgba(121, 40, 202, 0.2)'}; border-radius: 50%; z-index: -1;"></div>
+             style="width: 44px; height: 44px; border-radius: 50%; border: 3px solid ${hasPulse ? '#ff0080' : '#7928ca'}; box-shadow: 0 2px 10px rgba(0,0,0,0.15); background: white; object-fit: cover;" />
+        <div class="${hasPulse ? 'pulse-ring-active' : 'pulse-ring'}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: ${hasPulse ? 'rgba(255, 0, 128, 0.4)' : 'rgba(121, 40, 202, 0.2)'}; border-radius: 50%; z-index: -1;"></div>
       </div>`,
     className: 'custom-marker',
     iconSize: [44, 44],
@@ -62,9 +62,12 @@ const Home = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [distanceLine, setDistanceLine] = useState(null);
 
+  // Welcome notification
   useEffect(() => {
     const welcomeTimer = setTimeout(() => {
-      addNotification("Nearby social mode active!", "success");
+      if (addNotification) {
+        addNotification("Nearby social mode active! 🔥", "success");
+      }
     }, 1500);
     return () => clearTimeout(welcomeTimer);
   }, [addNotification]);
@@ -80,6 +83,7 @@ const Home = () => {
     }
   };
 
+  // Watch user location
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
       async (pos) => {
@@ -109,6 +113,7 @@ const Home = () => {
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
+  // Update distance line when user is selected
   useEffect(() => {
     if (selectedUser && userLocation) {
       setDistanceLine([
@@ -125,6 +130,17 @@ const Home = () => {
     setSelectedUser({ ...user, distance_km: distance });
   };
 
+  const handleRecenter = () => {
+    if (userLocation) {
+      setCenter(userLocation);
+      addNotification("Centered on your location! 📍", "info");
+    }
+  };
+
+  const openPulseModal = () => {
+    setShowPulseModal(true);
+  };
+
   return (
     <div className="relative h-[calc(100vh-4rem)] w-full overflow-hidden">
       <style>{`
@@ -133,11 +149,12 @@ const Home = () => {
           100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
         }
         .pulse-ring { animation: pulse-anim 2s infinite; }
-        .pulse-ring-active { animation: pulse-anim 1s infinite; border: 2px solid #ff0080; }
+        .pulse-ring-active { animation: pulse-anim 1s infinite; }
         .custom-marker { background: transparent; border: none; }
         .leaflet-container { background: #f8fafc !important; }
       `}</style>
 
+      {/* Loading Screen */}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-50">
           <div className="flex flex-col items-center gap-4">
@@ -147,21 +164,29 @@ const Home = () => {
         </div>
       )}
 
+      {/* Map Container */}
       <MapContainer center={center} zoom={15} className="h-full w-full">
         <ChangeView center={center} />
         <TileLayer 
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          attribution='&copy; OSM'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
         />
 
+        {/* Heatmap Layer */}
         <HeatmapLayer points={nearbyUsers} active={showHeatmap} />
 
+        {/* User's Own Marker */}
         {userLocation && (
-          <Marker position={userLocation} icon={getAvatarIcon(null, 'you')}>
+          <Marker 
+            position={userLocation} 
+            icon={getAvatarIcon(null, 'you')}
+            eventHandlers={{ click: () => addNotification("You are here! 📍", "info") }}
+          >
             <Popup>You are here</Popup>
           </Marker>
         )}
 
+        {/* Distance Line */}
         {distanceLine && (
           <Polyline 
             positions={distanceLine}
@@ -169,6 +194,7 @@ const Home = () => {
           />
         )}
 
+        {/* Nearby Users */}
         {nearbyUsers.map((user) => (
           <Marker
             key={user._id}
@@ -178,18 +204,23 @@ const Home = () => {
           >
             <Popup>
               <div className="text-center p-1">
+                <img src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} 
+                     className="w-10 h-10 rounded-full mx-auto mb-1" />
                 <p className="font-bold text-sm">{user.full_name}</p>
                 <p className="text-xs text-gray-500">{user.distance_km} km away</p>
+                {user.mood_status && (
+                  <p className="text-xs text-primary mt-1">💬 {user.mood_status}</p>
+                )}
               </div>
             </Popup>
           </Marker>
         ))}
       </MapContainer>
 
-      {/* Map Controls */}
+      {/* Map Controls - Right Side */}
       <div className="absolute top-6 right-6 z-[1000] flex flex-col gap-3">
         <button
-          onClick={() => setCenter(userLocation)}
+          onClick={handleRecenter}
           className="p-3 bg-white shadow-xl rounded-2xl hover:scale-110 transition-all border border-gray-100 text-gray-700"
           title="Recenter"
         >
@@ -206,10 +237,10 @@ const Home = () => {
         </button>
       </div>
 
-      {/* Nearby Pulse Button */}
+      {/* Send Pulse Button - Bottom Center */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[1000]">
         <button 
-          onClick={() => setShowPulseModal(true)}
+          onClick={openPulseModal}
           className="px-6 py-3 bg-white/90 backdrop-blur-md border border-white/20 shadow-2xl rounded-full flex items-center gap-2 group hover:bg-primary hover:text-white transition-all scale-100 hover:scale-105"
         >
           <div className="w-2 h-2 bg-green-500 rounded-full animate-ping group-hover:bg-white"></div>
@@ -218,14 +249,15 @@ const Home = () => {
         </button>
       </div>
 
-      {/* Selected User Info Card */}
-      {selectedUser && (
+      {/* Selected User Info Card (Bottom) */}
+      {selectedUser && !showPulseModal && (
         <div className="absolute bottom-24 left-6 right-6 z-[1000] animate-in slide-in-from-bottom-10">
           <div className="bg-white/90 backdrop-blur-xl p-4 rounded-3xl shadow-2xl border border-white/20 flex items-center gap-4">
             <div className="relative">
               <img 
                 src={selectedUser.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.username}`}
                 className="w-16 h-16 rounded-2xl border-2 border-primary object-cover"
+                alt=""
               />
               <div className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-full">
                 {selectedUser.distance_km}km
@@ -240,22 +272,22 @@ const Home = () => {
                 </span>
               </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <button 
-                onClick={() => setSelectedUser(null)}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
-              >
-                <Users size={20} className="text-gray-400" />
-              </button>
-            </div>
+            <button 
+              onClick={() => setSelectedUser(null)}
+              className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+            >
+              <Users size={20} className="text-gray-400" />
+            </button>
           </div>
         </div>
       )}
 
+      {/* Profile Modal */}
       {selectedUser && (
         <ProfileModal user={selectedUser} onClose={() => setSelectedUser(null)} />
       )}
 
+      {/* Pulse Modal */}
       <PulseModal isOpen={showPulseModal} onClose={() => setShowPulseModal(false)} />
     </div>
   );

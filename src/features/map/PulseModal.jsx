@@ -55,18 +55,20 @@ const PulseModal = ({ isOpen, onClose }) => {
             className="relative w-full max-w-md bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl"
           >
             <div className="p-8">
+              {/* Header */}
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-black text-gray-900">Send a Pulse</h3>
                 <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                  <X size={24} className="text-gray-400" />
+                  <X size={24} className="text-gray-500" />
                 </button>
               </div>
 
-              <p className="text-gray-500 text-sm mb-6">
+              {/* Description - Darker text */}
+              <p className="text-gray-700 text-sm mb-6 font-medium">
                 Your pulse will be visible to everyone nearby on the map for 24 hours.
               </p>
 
-              {/* Mood Selection */}
+              {/* Mood Selection - Better contrast */}
               <div className="flex gap-3 mb-8 overflow-x-auto pb-2 no-scrollbar">
                 {moods.map((mood) => (
                   <button
@@ -74,32 +76,36 @@ const PulseModal = ({ isOpen, onClose }) => {
                     onClick={() => setSelectedMood(mood.name)}
                     className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all min-w-[80px] ${
                       selectedMood === mood.name 
-                        ? `border-primary bg-primary/5 text-primary` 
-                        : 'border-gray-100 bg-gray-50 text-gray-400 hover:border-gray-200'
+                        ? `border-primary bg-primary/10 text-primary` 
+                        : 'border-gray-200 bg-gray-100 text-gray-600 hover:border-gray-300'
                     }`}
                   >
-                    <div className={`${selectedMood === mood.name ? 'text-primary' : 'text-gray-400'}`}>
+                    <div className={`${selectedMood === mood.name ? 'text-primary' : 'text-gray-500'}`}>
                       {mood.icon}
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider">{mood.name}</span>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${selectedMood === mood.name ? 'text-primary' : 'text-gray-500'}`}>
+                      {mood.name}
+                    </span>
                   </button>
                 ))}
               </div>
 
-              {/* Input Area */}
+              {/* Input Area - Better placeholder color */}
               <div className="relative mb-8">
                 <textarea
                   value={pulseText}
                   onChange={(e) => setPulseText(e.target.value)}
                   placeholder="What's happening? (e.g. At the mall, looking for coffee!)"
-                  className="w-full bg-gray-50 border border-gray-100 rounded-3xl p-5 text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all resize-none h-32"
+                  className="w-full bg-gray-100 border border-gray-200 rounded-3xl p-5 text-gray-800 text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all resize-none h-32 placeholder-gray-400"
                   maxLength={100}
                 />
-                <div className="absolute bottom-4 right-4 text-[10px] font-bold text-gray-300">
+                {/* Character count - Darker and visible */}
+                <div className="absolute bottom-4 right-4 text-[10px] font-bold text-gray-500">
                   {pulseText.length}/100
                 </div>
               </div>
 
+              {/* Submit Button */}
               <button
                 onClick={handleSendPulse}
                 disabled={loading || !pulseText.trim()}
