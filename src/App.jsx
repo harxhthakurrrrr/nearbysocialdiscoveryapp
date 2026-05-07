@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './features/notifications/NotificationContext';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -60,32 +61,34 @@ function App() {
 
   return (
     <AuthProvider>
-      <Router>
-        <div className="app-container min-h-screen bg-bg-dark text-white selection:bg-primary selection:text-white">
-          <Navbar />
-          <main className="pt-16 pb-20 md:pb-0 md:pl-20">
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+      <NotificationProvider>
+        <Router>
+          <div className="app-container min-h-screen bg-bg-dark text-white selection:bg-primary selection:text-white">
+            <Navbar />
+            <main className="pt-16 pb-20 md:pb-0 md:pl-20">
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-              {/* Private Routes */}
-              <Route element={<PrivateRoute />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/discover" element={<Discover />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/matches" element={<Matches />} />
-                <Route path="/leaderboard" element={<Leaderboard />} />
-                <Route path="/notifications" element={<Notifications />} />
-              </Route>
+                {/* Private Routes */}
+                <Route element={<PrivateRoute />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/discover" element={<Discover />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/matches" element={<Matches />} />
+                  <Route path="/leaderboard" element={<Leaderboard />} />
+                  <Route path="/notifications" element={<Notifications />} />
+                </Route>
 
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </main>
-        </div>
-      </Router>
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </main>
+          </div>
+        </Router>
+      </NotificationProvider>
     </AuthProvider>
   );
 }
