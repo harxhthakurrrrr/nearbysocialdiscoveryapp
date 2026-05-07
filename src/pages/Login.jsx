@@ -1,9 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Mail, Lock, ArrowRight, Globe } from 'lucide-react';
-import { Link } from 'react-router-dom';
-
+import { MapPin, Mail, Lock, ArrowRight, Globe, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
 const Login = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+ const handleLogin = async (e) => {
+  e.preventDefault();
+
+  setLoading(true);
+  setError('');
+
+  try {
+    await login(username, password);
+    // Logic for successful login is now handled inside AuthContext
+    navigate('/');
+  } catch (err) {
+    setError(
+      err.response?.data?.message ||
+      'Login failed. Please check your credentials.'
+    );
+
+    console.log(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6">
       <div className="w-full max-w-md">
@@ -25,14 +55,23 @@ const Login = () => {
             <p className="text-gray-400 text-sm mt-1 shadow-none">Discover people around you</p>
           </div>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-sm text-center">
+              {error}
+            </div>
+          )}
+
+          <form className="space-y-4" onSubmit={handleLogin}>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Username</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                 <input 
-                  type="email" 
-                  placeholder="name@example.com"
+                  type="text" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
+                  required
                   className="w-full bg-white/5 border border-glass-border rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
                 />
               </div>
@@ -44,7 +83,10 @@ const Login = () => {
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                 <input 
                   type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
+                  required
                   className="w-full bg-white/5 border border-glass-border rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
                 />
               </div>
@@ -54,9 +96,19 @@ const Login = () => {
               <button type="button" className="text-xs text-primary font-bold hover:underline">Forgot Password?</button>
             </div>
 
-            <button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary/20 mt-4 group">
-              Sign In
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            <button 
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary/20 mt-4 group disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : (
+                <>
+                  Sign In
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </button>
           </form>
 

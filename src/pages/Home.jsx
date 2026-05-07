@@ -3,8 +3,9 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-le
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { Navigation, Loader2 } from 'lucide-react';
+import api from '../api/axios';
 
-// Fix default marker icon
+// Fix marker icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -12,13 +13,10 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Auto move map
 const ChangeView = ({ center }) => {
   const map = useMap();
   useEffect(() => {
-    if (center) {
-      map.flyTo(center, 15);
-    }
+    if (center) map.flyTo(center, 15);
   }, [center]);
   return null;
 };
@@ -26,47 +24,54 @@ const ChangeView = ({ center }) => {
 const Home = () => {
   const [center, setCenter] = useState([28.6139, 77.2090]);
   const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState([]);
+  const [nearbyUsers, setNearbyUsers] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
 
+  // Get user location and fetch nearby users
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         const { latitude, longitude } = pos.coords;
         const newCenter = [latitude, longitude];
-
+        
         setCenter(newCenter);
         setUserLocation(newCenter);
-
-        // Dummy nearby users
-        setUsers([
-          { id: 1, name: 'Rahul', pos: [latitude + 0.002, longitude + 0.002], distance: '200m' },
-          { id: 2, name: 'Anjali', pos: [latitude - 0.002, longitude - 0.002], distance: '500m' },
-        ]);
-
+        
+        // Update location on backend
+        try {
+          await api.post('/location/update', {
+            lat: latitude,
+            lng: longitude,
+            radius_km: 10
+          });
+          
+          // Fetch nearby users
+          const res = await api.get('/location/nearby?radius_km=10');
+          setNearbyUsers(res.data.users);
+        } catch (err) {
+          console.error('Location update error:', err);
+        }
+        
         setLoading(false);
       },
-      () => setLoading(false)
+      (err) => {
+        console.error('Geolocation error:', err);
+        setLoading(false);
+      }
     );
   }, []);
 
   return (
     <div className="relative h-[calc(100vh-4rem)] w-full bg-white">
-
-      {/* Loader */}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white z-50">
           <Loader2 className="animate-spin text-primary" size={40} />
         </div>
       )}
 
-      {/* Map */}
       <MapContainer center={center} zoom={15} className="h-full w-full">
         <ChangeView center={center} />
-
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
         {/* Current User */}
         {userLocation && (
@@ -75,21 +80,19 @@ const Home = () => {
           </Marker>
         )}
 
-        {/* Nearby Users */}
-        {users.map((user) => (
-          <React.Fragment key={user.id}>
+        {/* Nearby Users from API */}
+        {nearbyUsers.map((user) => (
+          <React.Fragment key={user._id}>
             <Circle
-              center={user.pos}
+              center={[user.lat, user.lng]}
               radius={150}
-              pathOptions={{
-                color: '#00f2fe',
-                fillOpacity: 0.1,
-              }}
+              pathOptions={{ color: '#00f2fe', fillOpacity: 0.1 }}
             />
-            <Marker position={user.pos}>
+            <Marker position={[user.lat, user.lng]}>
               <Popup>
-                <b>{user.name}</b><br />
-                {user.distance} away
+                <b>{user.full_name}</b><br />
+                {user.distance_km} km away<br />
+                {user.bio}
               </Popup>
             </Marker>
           </React.Fragment>
@@ -105,7 +108,6 @@ const Home = () => {
           <Navigation size={20} />
         </button>
       </div>
-
     </div>
   );
 };
