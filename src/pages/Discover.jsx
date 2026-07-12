@@ -6,6 +6,7 @@ import api from '../api/axios';
 
 const Discover = () => {
   const [people, setPeople] = useState([]);
+  console.log('People state:', people);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [lastDirection, setLastDirection] = useState('');
